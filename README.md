@@ -13,17 +13,21 @@ A powerful Python tool to generate Software Bill of Materials (SBOM) for project
 ## Installation
 
 1. Clone the repository:
+
    git clone https://github.com/YOUR_USERNAME/SBOM-Generator.git
    cd SBOM-Generator
-   Install dependencies: 
+   
+   Install dependencies:
+   
  pip install -r requirements.txt 
  (Optional) Obtain API keys: 
+
 OSV API Key: Create at Google Cloud Console for vulnerability scanning. 
  
 GitHub Token: Generate at GitHub Settings with repo scope for Advisory Database. 
  Usage 
 Run the tool with the following command: 
-bash 
+
  python SBOM.py --path <project_dir> --output sbom.json --report report.md [options]
 
  Command-Line Options
@@ -41,12 +45,15 @@ bash
 
 Examples 
 Basic SBOM generation: 
+
  python SBOM.py --path ./examples --output sbom.json --report report.md --verbose 
  
  With vulnerability and outdated checks: 
+ 
  python SBOM.py --path ./examples --output sbom.json --check-vulns --check-outdated --report report.md --osv-api-key YOUR_OSV_KEY --github-token YOUR_GITHUB_TOKEN --verbose 
  
  Using a proxy: 
+ 
  python SBOM.py --path ./examples --output sbom.json --check-vulns --proxy http://proxy:8080 --verbose
 
  Supported Dependency Files 
@@ -75,10 +82,18 @@ plaintext
 │ monolog/monolog              │ 2.9.1   │ composer  │ Unknown │
 │ github.com/gorilla/mux       │ 1.8.0   │ golang    │ Unknown │
 └──────────────────────────────┴─────────┴───────────┴─────────┘ 
- 
+| Name  | Version  | Ecosystem | License  |
+|:------------- |:---------------:| -------------:|
+|requests       │ 2.31.0  │ pypi      │ Apache |
+| express       │ 4.18.2  │ npm       │ MIT     │
+| monolog/monolog   │ 2.9.1   │ composer  │ Unknown │
+| github.com/gorilla/mux       │ 1.8.0   │ golang    │ Unknown │
 Contributing 
+
 Feel free to open issues or submit pull requests. Suggestions for new features (e.g., additional languages, GUI) are welcome! 
 License 
+
 This project is licensed under the MIT License. See the LICENSE file for details.
 Contact 
+
 Created by Shok32 - feel free to reach out via GitHub issues.
