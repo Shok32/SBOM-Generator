@@ -1,3 +1,29 @@
+# Python
+pycache/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+*.egg-info/
+.pip-cache/
+.pytest_cache/
+*.log
+
+# SBOM output
+sbom.json
+report.md
+sbom_cache.json
+
+# IDE
+.vscode/
+.idea/
+
+# System files
+.DS_Store
+Thumbs.db
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
