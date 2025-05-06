@@ -76,10 +76,10 @@ plaintext
               Dependencies
 | Name  | Version  | Ecosystem | License  |
 |:------------- |:---------------:|:-------------:| -------------:|
-|requests       │ 2.31.0  │ pypi      │ Apache |
-| express       │ 4.18.2  │ npm       │ MIT     │
-| monolog/monolog   │ 2.9.1   │ composer  │ Unknown │
-| github.com/gorilla/mux       │ 1.8.0   │ golang    │ Unknown │
+|requests       │ 2.31.0          │ pypi          │ Apache        |
+|express        │ 4.18.2          │ npm           │ MIT           │
+|monolog/monolog│ 2.9.1           │ composer      │ Unknown       │
+| github.com/gorilla/mux│ 1.8.0   │ golang        │ Unknown       │
 Contributing 
 
 Feel free to open issues or submit pull requests. Suggestions for new features (e.g., additional languages, GUI) are welcome! 
