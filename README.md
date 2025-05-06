@@ -4,7 +4,7 @@ A powerful Python tool to generate Software Bill of Materials (SBOM) for project
 
 ![Photo](https://github.com/Shok32/SBOM-Generator/blob/main/SBOM.png)
 
-Commands in the therminal:
+
 ![Photo](https://github.com/Shok32/SBOM-Generator/blob/main/Commands.png)
 
 ## Features
