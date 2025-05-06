@@ -2,6 +2,8 @@
 
 A powerful Python tool to generate Software Bill of Materials (SBOM) for projects in multiple programming languages. It parses dependency files, checks for vulnerabilities, outdated dependencies, and generates a CycloneDX JSON SBOM and Markdown report.
 
+![Photo](https://github.com/Shok32/SBOM-Generator/blob/main/SBOM.png)
+
 ## Features
 - Supported Languages: Python (requirements.txt, poetry.lock), JavaScript (package.json), Ruby (Gemfile.lock), Java (pom.xml), PHP (composer.json), Go (go.mod), Swift (Package.swift).
 - Vulnerability Scanning: Checks vulnerabilities via OSV API and GitHub Advisory Database (GraphQL).
