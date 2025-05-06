@@ -1,0 +1,7 @@
+cyclonedx-python-lib
+requirements-parser
+toml
+requests
+packageurl-python
+rich
+tenacity
