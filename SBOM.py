@@ -78,8 +78,7 @@ class SBOMGenerator:
             with self.cache_file.open("w", encoding="utf-8") as f:
                 json.dump({
                     "vulnerabilities": self.vulnerabilities,
-                    "outdated": self.outdated,
-                    "licenses": self.licenses
+                    "outdated": self.licenses
                 }, f, indent=2)
         except Exception as e:
             logger.error(f"Ошибка сохранения кэша: {e}")
@@ -193,6 +192,72 @@ class SBOMGenerator:
             logger.error(f"Ошибка при парсинге {file_path}: {e}")
         return components
 
+    def parse_composer_json(self, file_path: Path) -> List[Component]:
+        """Парсинг composer.json (PHP)."""
+        components = []
+        try:
+            with file_path.open("r", encoding="utf-8") as f:
+                composer_data = json.load(f)
+                for dep_type in ["require", "require-dev"]:
+                    for name, version in composer_data.get(dep_type, {}).items():
+                        version = version.lstrip("^~") if version else None
+                        purl = PackageURL(type="composer", name=name, version=version) if version else None
+                        component = Component(name=name, version=version, purl=purl)
+                        components.append(component)
+                        logger.info(f"Добавлена зависимость (PHP): {name}=={version or 'unknown'}")
+        except Exception as e:
+            logger.error(f"Ошибка при парсинге {file_path}: {e}")
+        return components
+
+    def parse_go_mod(self, file_path: Path) -> List[Component]:
+        """Парсинг go.mod (Go)."""
+        components = []
+        try:
+            with file_path.open("r", encoding="utf-8") as f:
+                lines = f.readlines()
+                in_require = False
+                for line in lines:
+                    line = line.strip()
+                    if line == "require (":
+                        in_require = True
+                        continue
+                    if in_require and line == ")":
+                        in_require = False
+                        continue
+                    if in_require or (line.startswith("require ") and not in_require):
+                        parts = line.replace("require ", "").strip().split()
+                        if len(parts) >= 2:
+                            name = parts[0]
+                            version = parts[1]
+                            purl = PackageURL(type="golang", name=name, version=version)
+                            component = Component(name=name, version=version, purl=purl)
+                            components.append(component)
+                            logger.info(f"Добавлена зависимость (Go): {name}=={version}")
+        except Exception as e:
+            logger.error(f"Ошибка при парсинге {file_path}: {e}")
+        return components
+
+    def parse_package_swift(self, file_path: Path) -> List[Component]:
+        """Парсинг Package.swift (Swift)."""
+        components = []
+        try:
+            with file_path.open("r", encoding="utf-8") as f:
+                content = f.read()
+                # Ищем зависимости в формате .package(name: "...", url: "...", from: "...")
+                import re
+                dep_pattern = r'\.package\s*\(\s*(name:\s*"([^"]+)".*?)?url:\s*"[^"]+",\s*from:\s*"([^"]+)"\s*\)'
+                matches = re.findall(dep_pattern, content, re.MULTILINE | re.DOTALL)
+                for match in matches:
+                    name = match[1] if match[1] else match[2].split("/")[-1].replace(".git", "")
+                    version = match[2]
+                    purl = PackageURL(type="swift", name=name, version=version) if version else None
+                    component = Component(name=name, version=version, purl=purl)
+                    components.append(component)
+                    logger.info(f"Добавлена зависимость (Swift): {name}=={version or 'unknown'}")
+        except Exception as e:
+            logger.error(f"Ошибка при парсинге {file_path}: {e}")
+        return components
+
     @retry(
         stop=stop_after_attempt(3),
         wait=wait_fixed(2),
@@ -208,7 +273,10 @@ class SBOMGenerator:
                 "pypi": "PyPI",
                 "npm": "npm",
                 "rubygems": "RubyGems",
-                "maven": "Maven"
+                "maven": "Maven",
+                "composer": "Composer",
+                "golang": "Go",
+                "swift": "Swift"
             }.get(component.purl.type if component.purl else "pypi")
             if not ecosystem:
                 continue
@@ -370,6 +438,9 @@ class SBOMGenerator:
             "JavaScript": [self.project_path / "package.json"],
             "Ruby": [self.project_path / "Gemfile.lock"],
             "Java": [self.project_path / "pom.xml"],
+            "PHP": [self.project_path / "composer.json"],
+            "Go": [self.project_path / "go.mod"],
+            "Swift": [self.project_path / "Package.swift"],
         }
 
         components = []
@@ -392,6 +463,12 @@ class SBOMGenerator:
                             components.extend(self.parse_gemfile_lock(path))
                         elif ecosystem == "Java":
                             components.extend(self.parse_pom_xml(path))
+                        elif ecosystem == "PHP":
+                            components.extend(self.parse_composer_json(path))
+                        elif ecosystem == "Go":
+                            components.extend(self.parse_go_mod(path))
+                        elif ecosystem == "Swift":
+                            components.extend(self.parse_package_swift(path))
                     except Exception as e:
                         logger.error(f"Ошибка при обработке {path}: {e}")
                         continue
@@ -513,11 +590,11 @@ class SBOMGenerator:
 
 def main():
     """Основная функция CLI."""
-    parser = argparse.ArgumentParser(description="Генерация SBOM для Python, JavaScript, Ruby и Java")
+    parser = argparse.ArgumentParser(description="Генерация SBOM для Python, JavaScript, Ruby, Java, PHP, Go и Swift")
     parser.add_argument(
         "--path",
         default=".",
-        help="Путь к проекту (где находятся requirements.txt, poetry.lock, package.json, Gemfile.lock или pom.xml)",
+        help="Путь к проекту (где находятся requirements.txt, poetry.lock, package.json, Gemfile.lock, pom.xml, composer.json, go.mod или Package.swift)",
     )
     parser.add_argument(
         "--output",
